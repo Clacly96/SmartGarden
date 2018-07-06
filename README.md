@@ -17,4 +17,4 @@ The APIs that we need to use ad the following:
 To use Twitter's API it's necessary to create an app and get "Consumer Key", "Consumer Secret", "Access Token" and "Token Secret" from the page of the app, because Twitter uses OAuth 1.0; these tokens will not expire.
 The APIs that we need to use ad the following:
 - to publish a post can be done a POST request to `api.twitter.com/1.1/statuses/update.json` and in the body can be specify parameters like `status` for the text of the post, `lat` and `long` for insert a place and `media_ids` for insert a media.
-- media must be uploaded with a POST request to `upload.twitter.com/1.1/media/upload.json` and in the body specify the param `media` and the media file.
+- media must be uploaded with a POST request to `upload.twitter.com/1.1/media/upload.json` and in the body specify the param `media` and the media file; the response for this request will contain media_id.
