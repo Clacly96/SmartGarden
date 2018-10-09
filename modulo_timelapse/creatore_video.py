@@ -1,6 +1,6 @@
 import numpy as np
 import sys,os,datetime,piexif
-import cv2.cv2 as cv2 
+import cv2.cv2 as cv2
 def ridimensiona(img,frame_height,frame_width):
     dim_esatta="" # "a" se alt=frame_height "l" altrimenti
     alt,larg=img.shape[:2]
@@ -25,7 +25,7 @@ def ridimensiona(img,frame_height,frame_width):
             nuova_larg=larg*frame_height/alt
             dim_esatta="a"
 
-    img_r = cv2.resize(img, (int(nuova_larg),int(nuova_alt)), interpolation = cv2.INTER_AREA) 
+    img_r = cv2.resize(img, (int(nuova_larg),int(nuova_alt)), interpolation = cv2.INTER_AREA)
     if dim_esatta=="a":
         dim_bordo=frame_width-img_r.shape[1]
         frame=cv2.copyMakeBorder(img_r,top=0,bottom=0, left=int(dim_bordo/2), right=int(dim_bordo/2),borderType= cv2.BORDER_CONSTANT,value=[0,0,0] )
@@ -55,20 +55,23 @@ def crea_video(inizio_dt,fine_dt,percorso,fps):
             vettore_file_data[data_dt]=filename
 
     for key in sorted(vettore_file_data):
-        img=cv2.imread(percorso+vettore_file_data[key],cv2.IMREAD_ANYCOLOR)        
-        
+
+        if(grayscale==1):
+            img=cv2.imread(percorso+vettore_file_data[key],cv2.IMREAD_GRAYSCALE)
+        else:
+            img=cv2.imread(percorso+vettore_file_data[key],cv2.IMREAD_ANYCOLOR)
         # shape restituisce (altezza,larghezza,num_canali)
-        #calcolo nuove dimensioni        
+        #calcolo nuove dimensioni
         if img.shape[0]>frame_height or img.shape[1]>frame_width:
             frame=ridimensiona(img,frame_height,frame_width)
-        else: 
-            frame=img        
+        else:
+            frame=img
 
         dimtesto=cv2.getTextSize(str(key),cv2.FONT_HERSHEY_SIMPLEX,1,1)[0] # (larghezza,altezza)
         altezza_rect=dimtesto[1]+10
         cv2.rectangle(frame,(0,frame_height),(frame_width,frame_height-altezza_rect),(0,0,0),-1)
         cv2.putText(frame,str(key),(int((frame_width-dimtesto[0])/2),int(frame_height-(altezza_rect-dimtesto[1])/2)),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),1,cv2.LINE_AA)
-        
+
         out.write(frame)
 
 
@@ -80,6 +83,7 @@ if __name__=="__main__":
         inizio=str(sys.argv[2])
         fine=str(sys.argv[3])
         fps=int(sys.argv[4])
+        grayscale=int(sys.argv[5])
         inizio_dt=datetime.datetime.strptime(inizio,"%Y-%m-%d")
         fine_dt=datetime.datetime.strptime(fine,"%Y-%m-%d")
     except ValueError:
@@ -88,6 +92,6 @@ if __name__=="__main__":
     except IndexError:
         print("Attenzione, inserire i seguenti parametri: path_name, data_inizio (AAAA-MM-GG), data_fine (AAAA-MM-GG), fps")
         sys.exit(1)
-    
+
     crea_video(inizio_dt,fine_dt,percorso,fps)
     sys.exit(0)
