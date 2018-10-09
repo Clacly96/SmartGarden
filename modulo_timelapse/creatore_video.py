@@ -39,7 +39,7 @@ def ridimensiona(img,frame_height,frame_width):
         frame=cv2.resize(frame, (frame_width,frame_height), interpolation = cv2.INTER_AREA)
     return frame
 
-def crea_video(inizio_dt,fine_dt,percorso,fps):
+def crea_video(inizio_dt,fine_dt,percorso,fps,grayscale,gif):
     if percorso[-1]!="/":
         percorso=percorso+"/"
     frame_width=1280
@@ -100,5 +100,5 @@ if __name__=="__main__":
         print("Attenzione, inserire i seguenti parametri: path_name, data_inizio (AAAA-MM-GG), data_fine (AAAA-MM-GG), fps, grayscale, gif")
         sys.exit(1)
 
-    crea_video(inizio_dt,fine_dt,percorso,fps)
+    crea_video(inizio_dt,fine_dt,percorso,fps,grayscale,gif)
     sys.exit(0)
