@@ -46,7 +46,7 @@ def crea_video(inizio_dt,fine_dt,percorso,fps,grayscale,gif):
     frame_height=720
 
 
-    out = cv2.VideoWriter('video_out.mp4',cv2.VideoWriter_fourcc(*'H264'), fps, (frame_width,frame_height))
+    out = cv2.VideoWriter('video_out.mp4',cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width,frame_height))
 
     vettore_file_data={}
     for filename in os.listdir(percorso):
@@ -60,11 +60,12 @@ def crea_video(inizio_dt,fine_dt,percorso,fps,grayscale,gif):
 
         if(grayscale==1):
             img=cv2.imread(percorso+vettore_file_data[key],cv2.IMREAD_GRAYSCALE)
+            img=cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         else:
             img=cv2.imread(percorso+vettore_file_data[key],cv2.IMREAD_ANYCOLOR)
         # shape restituisce (altezza,larghezza,num_canali)
         #calcolo nuove dimensioni
-        if img.shape[0]>frame_height or img.shape[1]>frame_width:
+        if img.shape[0]!=frame_height or img.shape[1]!=frame_width:
             frame=ridimensiona(img,frame_height,frame_width)
         else:
             frame=img
@@ -101,4 +102,4 @@ if __name__=="__main__":
         sys.exit(1)
 
     crea_video(inizio_dt,fine_dt,percorso,fps,grayscale,gif)
-    sys.exit(0)
+sys.exit(0)
