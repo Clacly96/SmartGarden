@@ -1,6 +1,8 @@
 import numpy as np
 import sys,os,datetime,piexif
 import cv2.cv2 as cv2
+from moviepy.editor import *
+
 def ridimensiona(img,frame_height,frame_width):
     dim_esatta="" # "a" se alt=frame_height "l" altrimenti
     alt,larg=img.shape[:2]
@@ -76,6 +78,10 @@ def crea_video(inizio_dt,fine_dt,percorso,fps):
 
 
     out.release()
+    if(gif==1):
+        clip = VideoFileClip("video_out.mp4")
+        clip.write_gif("video_out.gif")
+    #    os.remove("video_out.mp4") vedere se necessario, in fase di test no
 
 if __name__=="__main__":
     try:
@@ -84,13 +90,14 @@ if __name__=="__main__":
         fine=str(sys.argv[3])
         fps=int(sys.argv[4])
         grayscale=int(sys.argv[5])
+        gif=int(sys.argv[6])
         inizio_dt=datetime.datetime.strptime(inizio,"%Y-%m-%d")
         fine_dt=datetime.datetime.strptime(fine,"%Y-%m-%d")
     except ValueError:
         print("Inserire le date nel formato AAAA-MM-GG")
         sys.exit(1)
     except IndexError:
-        print("Attenzione, inserire i seguenti parametri: path_name, data_inizio (AAAA-MM-GG), data_fine (AAAA-MM-GG), fps")
+        print("Attenzione, inserire i seguenti parametri: path_name, data_inizio (AAAA-MM-GG), data_fine (AAAA-MM-GG), fps, grayscale, gif")
         sys.exit(1)
 
     crea_video(inizio_dt,fine_dt,percorso,fps)
