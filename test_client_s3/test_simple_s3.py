@@ -5,7 +5,7 @@ import sys,os,datetime,piexif
 import cv2.cv2 as cv2
 
 nome_bucket = "ortobotanico"
-path_oggetto = "test/IN/1.jpg"
+path_oggetto = "test/IN/2.jpg"
 nome_oggetto=(path_oggetto.split("/"))[2]
 download_path = 'tmp/in/{}{}'.format("1a", nome_oggetto)
 upload_path = 'tmp/out/{}'.format(nome_oggetto)
@@ -17,7 +17,7 @@ try:
     info=bucket.download_file(path_oggetto,download_path) # I PERMESSI
     img=cv2.imread(download_path,cv2.IMREAD_GRAYSCALE)
     cv2.imwrite(upload_path,img)
-    bucket.upload_file(upload_path, 'test/OUT/'+nome_oggetto) # importante impostare i PERMESSI
+    bucket.upload_file(upload_path, 'test/OUT/'+nome_oggetto,ExtraArgs={'ACL':'public-read'}) # importante impostare i PERMESSI
 
     print(info)
 except botocore.exceptions.ClientError as e:
