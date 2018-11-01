@@ -129,7 +129,7 @@ def crea_video_h264(inizio,fine,percorso,fps,grayscale,frame_width,frame_height,
             print(e)
 
 
-    input_ffmpeg=open("/tmp/input_ffmpeg.txt","w")
+    ffmpeg_file=open("/tmp/input_ffmpeg.txt","w")
     ultimo=0
     for key in sorted(vettore_file_data):
         if grayscale==1:
@@ -150,15 +150,14 @@ def crea_video_h264(inizio,fine,percorso,fps,grayscale,frame_width,frame_height,
         cv2.putText(frame,str(key),(int((frame_width-dimtesto[0])/2),int(frame_height-(altezza_rect-dimtesto[1])/2)),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),1,cv2.LINE_AA)
         # sovrascriviamo l'immagine
         cv2.imwrite(vettore_file_data[key],frame)
-        input_ffmpeg.write("file {} \n".format(vettore_file_data[key])) # inserisce il nome del file da concatenare
-        input_ffmpeg.write("duration {}\n".format(str(1/fps))) #la durata che deve avere quel file nel video, cioè 1/fps
+        ffmpeg_file.write("file {} \n".format(vettore_file_data[key])) # inserisce il nome del file da concatenare
+        ffmpeg_file.write("duration {}\n".format(str(1/fps))) #la durata che deve avere quel file nel video, cioè 1/fps
         ultimo=key
-    input_ffmpeg.write("file {} \n".format(vettore_file_data[ultimo]))   #l'ultimo file va ripetuto due volte, la seconda volta dopo la sua durata
-    input_ffmpeg.close()
+    ffmpeg_file.write("file {} \n".format(vettore_file_data[ultimo]))   #l'ultimo file va ripetuto due volte, la seconda volta dopo la sua durata
+    ffmpeg_file.close()
     path_out='/tmp/{}.mp4'.format(info_video['nome'])
 
-    comando="ffmpeg -f concat -i {0} -vsync vfr -pix_fmt yuv420p {1}".format(input_ffmpeg,path_out)
-
+    comando="ffmpeg -f concat -safe 0 -i {0} -vsync vfr -pix_fmt yuv420p {1}".format("/tmp/input_ffmpeg.txt",path_out)
     try:
         subprocess.call(comando.split()) # usa split per passargli la stringa di comando come tupla
     except Exception as e:
@@ -218,16 +217,6 @@ def handler(event, context):
                                             s3_client,
                                             nome_bucket
                                             )
-
-        f= open("/tmp/lista_cartella.txt",'w')
-        comando="ls -la /tmp/"
-        subprocess.call(comando.split(),stdout=f)
-        s3_client.upload_fileobj(
-                                    f,
-                                    nome_bucket,
-                                    "lista_cartella.txt"
-                                    )
-        f.close()
 
         with open(video_path_dest, 'rb') as video:
             s3_client.upload_fileobj(video,
