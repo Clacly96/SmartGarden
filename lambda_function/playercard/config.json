@@ -1,6 +1,6 @@
 {
-    "id_pianta":1254,
+    "id_pianta":"pianta1",
     "titolo":"Player Card",
     "descrizione":"Descrizione della Card",
-    "url_immagine":"https://s3.amazonaws.com/ortobotanico/test2/IN/1.jpg"
+    "url_immagine":"https://s3.amazonaws.com/ortobotanico/demo/video/pianta1/thumbnail/video1.jpg"
 }
