@@ -44,7 +44,7 @@ def handler(event, context):
 
         # Crea html player e lo inserisce su s3
         url_video='https://s3.amazonaws.com/{}/{}'.format(nome_bucket,path_video)
-        key_player=path_twittercard+'{}/player-{}.html'.format(nome_pianta,nome_video)
+        key_player=path_twittercard+'{}/{}-player.html'.format(nome_pianta,nome_video)
         s3_client.put_object(
             Bucket=nome_bucket,
             Body=html_player(url_video,"temp_player.html"),
@@ -55,7 +55,7 @@ def handler(event, context):
         # Crea html card e lo carica su s3
         videoobj=s3_client.get_object(Bucket=nome_bucket,Key=path_video)['Metadata']
         url_player='https://s3.amazonaws.com/{}/{}'.format(nome_bucket,key_player)
-        key_card=path_twittercard+'{}/card-{}.html'.format(nome_pianta,nome_video)
+        key_card=path_twittercard+'{}/{}-card.html'.format(nome_pianta,nome_video)
         s3_client.put_object(
             Bucket=nome_bucket,
             Body=html_card(config['titolo'],config['descrizione'],config['url_immagine'],url_player,videoobj['width'],videoobj['height'],"temp_card.html"),
