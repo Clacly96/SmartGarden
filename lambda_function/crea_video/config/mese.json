@@ -1,0 +1,14 @@
+{
+    "data_inizio":"AAAA-MM-01",
+    "data_fine":"AAAA-MM-31",
+    "percorso":"path_until_photos_dir",
+    "fps":"3",
+    "grayscale":"0",
+    "frame_width":"1280",
+    "frame_height":"720",
+    "info_video":{
+        "nome":"mese",
+        "formato":"H264",
+        "estensione":"mp4"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "anno":"AAAA",
+    "percorso":"path_until_photos_dir",
+    "fps":"10",
+    "grayscale":"0",
+    "frame_width":"1280",
+    "frame_height":"720",
+    "info_video":{
+        "nome":"anno",
+        "formato":"H264",
+        "estensione":"mp4"
+    }
+}
