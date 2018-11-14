@@ -80,12 +80,10 @@ def check_config(bucket,root,id_plant,event_time,client):
     for conf_key,val in miss_conf.items():
         if val==True:
             path_json='/tmp/{}.json'.format(conf_key)
-            thumbnail_url="https://s3.amazonaws.com/{}/video/{}/thumbnail/{}.jpg".format(root,id_plant,conf_key)
+            thumbnail_url="https://{}.s3.amazonaws.com/{}/video/{}/thumbnail/{}.jpg".format(bucket,root,id_plant,conf_key)
             list_json[conf_key]=create_json(conf_key,id_plant,thumbnail_url)
-            print(list_json[conf_key]) #debug
             with open(path_json,'w') as file:
                 json.dump(list_json[conf_key],file)
-
             with open(path_json,'rb') as file:
                 client.upload_fileobj(file,bucket,'{}/twitter/card/{}/config/{}.json'.format(root,id_plant,conf_key))
 
@@ -98,6 +96,6 @@ def lambda_handler(event, context):
     id_plant=key.split('/')[-2]
     root=key.split('/')[0]
     date_time=event['Records'][0]['eventTime'] #prendo il tempo dell'evento
-    date_time=datetime.datetime.strptime(date_time.split('.')[0],'%Y-%m-%dT%H:%M:%S')  # creo oggetto datetime
+    date_time=datetime.datetime.strptime(date_time.split('.')[0],'%Y-%m-%dT%H:%M:%S')  # creo oggetto datetime , il punto serve perchè la data è nel formato 2018-11-08T00:00:00.000Z
     check_name(date_name,format,bucket,key,file_tmp,path_key,s3)
     check_config(bucket,root,id_plant,date_time,s3)

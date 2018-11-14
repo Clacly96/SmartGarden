@@ -64,8 +64,6 @@ def retrieve_photos(inizio,fine,percorso,client,bucket):
     fine_dt=''.join(fine.split('-'))
     inizio_dt=inizio_dt+'0000' #necessario per uniformare le date passate dal file ai nomi delle foto
     fine_dt=fine_dt+'2359'
-    print(inizio_dt) #debug
-    print(fine_dt) #debug
     # questo discorso è valido per la settimana, distinguere i 3 casi settimana |mese| anno
     mese1=True
     if inizio_dt[0:6]!=fine_dt[0:6]: #controllo necessario per listare correttamente tutte le possibili foto nelle settimane a cavallo tra due mesi, così da listare entrambi i mesi
@@ -91,7 +89,6 @@ def retrieve_photos(inizio,fine,percorso,client,bucket):
     path_list=[]
     for oggetto in lista_oggetti:
         try:
-            print(oggetto['Key'])
             date_name=oggetto['Key'].split('/')[-1]
             data_int=int(date_name.split('.')[0])
             if data_int>=int(inizio_dt) and data_int<=int(fine_dt):
@@ -114,7 +111,6 @@ def crea_video(inizio,fine,percorso,fps,grayscale,frame_width,frame_height,nome_
             img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         elif grayscale==0:
             img=cv2.imread(photo_file,cv2.IMREAD_ANYCOLOR)
-            #print('[TEST] File aperto {}'.format(vettore_file_data[key]))
         # shape restituisce (altezza,larghezza,num_canali)
         #calcolo nuove dimensioni
         if img.shape[0]!=frame_height or img.shape[1]!=frame_width:
@@ -136,7 +132,7 @@ def crea_video(inizio,fine,percorso,fps,grayscale,frame_width,frame_height,nome_
     #except Exception e:
         #sentry.captureException()
         #sentry.captureMessage('Something went fundamentally wrong')
-        #print(e)
+
 
 
 
@@ -148,7 +144,6 @@ def crea_video_anno(anno,percorso,fps,grayscale,frame_width,frame_height,nome_vi
     text_list=open(text_list_path,'w') # lo apro in scrittura di stringhe e non wb cioè come scrittura a byte
 
     for mese in range(1,10):
-        print('eseguo crea video al mese {}'.format(mese))
         try:
             thumbnail= crea_video(
                                     '{}-0{}-01'.format(anno,mese),
@@ -190,12 +185,8 @@ def crea_video_anno(anno,percorso,fps,grayscale,frame_width,frame_height,nome_vi
         except Exception as e:
             pass #mese in cui non ci sono foto
     text_list.close()
-
-
     comando='ffmpeg -f concat -safe 0 -i {} -c copy {}.avi'.format(text_list_path,nome_video) #attenzione ai path perchè posso scrivere solo dentro a /tmp
     subprocess.call(comando.split())
-
-
     return new_thumbpath
 
 def converti_video(path_in,path_out):
@@ -203,7 +194,8 @@ def converti_video(path_in,path_out):
     try:
         subprocess.call(comando.split()) # usa split per passargli la stringa di comando come tupla
     except Exception as e:
-        print(e)
+        #url_sentry
+        pass
 
 
 def handler(event, context):
