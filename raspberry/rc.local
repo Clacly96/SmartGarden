@@ -1,0 +1,2 @@
+runuser -l pi -c '/home/pi/scripts/main_script.sh /home/pi/scripts  /home/pi/photos ortobotanico demo/foto'
+exit 0
