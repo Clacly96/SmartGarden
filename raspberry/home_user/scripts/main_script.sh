@@ -3,7 +3,7 @@ path_script=$1
 path_photos=$2
 bucket=$3
 prefix_photos=$4
-key_scheduler=$5
+key_scheduler='demo/sched_wittypi'
 
 . "/home/pi/wittyPi/utilities.sh"
 
@@ -13,7 +13,7 @@ cd $path_script
 #controllo se c'è internet
 if $(has_internet); then
   echo 'connesso'
-  ./sync_scheduler.sh $bucket $key_scheduler $path_script ../wittyPi
+  ./sync_scheduler.sh $bucket $key_scheduler.wpi $path_script
 #poi lancia sync_photos.sh
   ./sync_photos.sh $path_photos $bucket/$prefix_photos
 fi
