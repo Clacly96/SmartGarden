@@ -1,0 +1,4 @@
+BEGIN YYYY-MM-DD HH:MM:SS
+END YYYY-MM-DD HH:MM:SS
+ON M5 WAIT # l'opzione wait permette di non dare un preciso tempo di durata dell'accensione, necessario premurarsi di spegnere la raspberry
+OFF M15 # serve comunque per mantenere l'intervallo di schedulazione ogni tot di tempo, in questo caso si deve accendere ogni 20 minuti
