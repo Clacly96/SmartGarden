@@ -3,13 +3,13 @@ FUNCTION=$2
 BUCKET=$3
 KEY=$4
 
-# vado nella cartella
 cd $CODEPATH
-#zippo tutto il contenuto
+#zip all
 
 zip archivio.zip *
-# prima si carica il codice su s3 e poi lo si linka a lambda
+# upload on s3 the zip coantains the code
 aws s3 cp archivio.zip s3://$BUCKET/$KEY
+# update the code of the lambda function from s3 object
 aws lambda update-function-code --function-name $FUNCTION --s3-bucket $BUCKET --s3-key $KEY
-
+# delete zip
 rm archivio.zip
