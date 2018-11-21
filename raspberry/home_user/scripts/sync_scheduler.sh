@@ -12,7 +12,7 @@ if cmp -s $scheduler $scheduler_prov ; then
   echo 'same file sched'
   rm $scheduler_prov
 else
-  ls
+  
   mv $scheduler_prov $scheduler
   sudo  cp $scheduler /home/pi/wittyPi/schedule.wpi
   echo '  Running the script...'

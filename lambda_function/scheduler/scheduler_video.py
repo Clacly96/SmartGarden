@@ -62,7 +62,7 @@ def lambda_handler(event, context):
 
     root='demo' # necessary to change it in case of the root is changed
     bucket = 'ortobotanico'
-    # lista of all the plant presents in photo, they are prefixes
+    # list of all the plant presents in photo, they are prefixes
     list_key_plant=s3.list_objects(Bucket=bucket,Prefix='{}/foto/'.format(root),Delimiter='/')['CommonPrefixes'] # retrieve prefixes not keys
     type_ev=event['resources'][0].split('/')[-1].split('_')[0]
     date_time=event['time'] #get time event for the correct creation of json file, because in the json file there are dates

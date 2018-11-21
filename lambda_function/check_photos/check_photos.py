@@ -14,7 +14,7 @@ s3 = boto3.client('s3')
 # verify that the string date_text is a correct date format in string like YYYYMMDDHHMM
 def validate(date_text):
     try:
-        # prende la data come stringa date_text poi prova a trasformarla in un oggetto datetime seguendo la regex indicata nel secondo parametro, se non ci riescie vuol dire che non è corretto il nome
+        # takes the date as a date_text string then tries to transform it into a datetime object following the regex indicated in the second argument, if it fails it means that the name is not correct
         datetime.datetime.strptime(date_text, '%Y%m%d%H%M')
         return True
     except ValueError:
