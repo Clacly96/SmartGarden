@@ -1,13 +1,13 @@
-#deve scaricare il file .wpi confrontarlo con quello in uso e se sono diversi, ricaricarlo sul wittipy
+#must download the .wpi file comparing it with the one in use and if they are different, reload it to the wittipy
 BUCKET=$1
 KEY_SCHEDULER=$2
 path_script=$3
 scheduler='scheduler.wpi'
 scheduler_prov='scheduler_prov.wpi'
-# inizio script
+
 cd $path_script
 aws s3 cp s3://$BUCKET/$KEY_SCHEDULER $scheduler_prov
-# confronto i file a byte tanto sono file molto piccoli
+# Compare byte files so much as they are very small files
 if cmp -s $scheduler $scheduler_prov ; then
   echo 'same file sched'
   rm $scheduler_prov

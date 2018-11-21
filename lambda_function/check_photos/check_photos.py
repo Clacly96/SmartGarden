@@ -2,9 +2,16 @@ import json
 import boto3
 import datetime
 import piexif
-
+import sentry_sdk
+from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
+# Automatically report all uncaught exceptions
+sentry_sdk.init(
+    dsn="url_sentry",
+    integrations=[AwsLambdaIntegration()]
+)
 s3 = boto3.client('s3')
 
+# verify that the string date_text is a correct date format in string like YYYYMMDDHHMM
 def validate(date_text):
     try:
         # prende la data come stringa date_text poi prova a trasformarla in un oggetto datetime seguendo la regex indicata nel secondo parametro, se non ci riescie vuol dire che non è corretto il nome
@@ -12,71 +19,68 @@ def validate(date_text):
         return True
     except ValueError:
         return False
-
-def create_json(type,id_plant,thumbnail_url): #type è uno dei valori (settimana,mese,anno)
-    if type=='anno':
+# from the type create a json, that is the config file, for the creation of twitter player card
+def create_json(type,id_plant,thumbnail_url): #type is year || month || week
+    if type=='year':
         json={}
-        json["id_pianta"]=id_plant
-        json["titolo"]="Year-span video of {}".format(id_plant) #poi ci andrà il nome della pianta preso nel database,
-        json["descrizione"] ="A timelaps of the past year"
-        json["url_immagine"]=thumbnail_url
-    elif type=='mese':
+        json["id_plant"]=id_plant
+        json["title"]="Year-span video of {}".format(id_plant) #in future will be the name fetched from the db,
+        json["description"] ="A timelaps of the past year"
+        json["url_image"]=thumbnail_url
+    elif type=='month':
         json={}
-        json["id_pianta"]=id_plant
-        json["titolo"]="Month-span video of {}".format(id_plant) #poi ci andrà il nome della pianta preso nel database,
-        json["descrizione"] ="A timelaps of the past month"
-        json["url_immagine"]=thumbnail_url
-    elif type=='settimana':
+        json["id_plant"]=id_plant
+        json["title"]="Month-span video of {}".format(id_plant) #in future will be the name fetched from the db
+        json["description"] ="A timelaps of the past month"
+        json["url_image"]=thumbnail_url
+    elif type=='week':
         json={}
-        json["id_pianta"]=id_plant
-        json["titolo"]="Week-span video of {}".format(id_plant) #poi ci andrà il nome della pianta preso nel database,
-        json["descrizione"] ="A timelaps of the past week"
-        json["url_immagine"]=thumbnail_url
+        json["id_plant"]=id_plant
+        json["title"]="Week-span video of {}".format(id_plant) #in future will be the name fetched from the db
+        json["description"] ="A timelaps of the past week"
+        json["url_image"]=thumbnail_url
     else:
         raise ValueError('No good types of config.')
     return json
 
+# check if the name of the file that uploaded on s3 is correct or not, if the name isn't correct the function rename the file with the correct name based on the date the photo was captured, through the piexiff info
 def check_name(name,format,bucket,key,temp,path_key,client):
     if len(name)!=12 or validate(name) is False:
-        #metterci il codice per prendere la data dalla foto con i piexiff e poi rinominare l'oggetto con il corretto nome
-
+        #download the file
         with open(temp,'wb') as photo:
-            #scarica il file
             client.download_fileobj(bucket,key, photo)
 
-    #leggi la data da i piexif e crea il nome corretto da dare file come key
+    #reads the date from  piexif and creates the correct name to give file as key
         try:
             exif_photo=piexif.load(temp)
-            #strptipe trasforma il dato piexif in un oggetto datetime e poi con strftime a partire dall'oggetto datetime si crea la stringa formattata nella maniera voluta
+            #strptipe transforms the piexif data into a datetime object and then with strftime from the datetime object creates the formatted string as desired
             name=datetime.datetime.strptime(exif_photo['0th'][piexif.ImageIFD.DateTime].decode('utf-8'),'%Y:%m:%d %H:%M:%S').strftime('%Y%m%d%H%M')
-        #rinomina il file su s3 se si può
             new_key='{0}/{1}.{2}'.format(path_key,name,format)
-            #per rinominare l'oggetto è necessario effettuare una copia dell'oggetto con la nuova chiave e poi cancellare la vecchia copia con la vecchi achiave
+            #for rename an object on s3 is necessary to copy the object that you want to rename with a new (desired) key and then delet the object with old key
             client.copy_object(CopySource='{0}/{1}'.format(bucket,key),Bucket=bucket,Key=new_key)
             client.delete_object(Bucket=bucket,Key=key)
         except Exception as e:
-            #sentry
             raise ValueError('No piexif in photo')
 
-def check_config(bucket,root,id_plant,event_time,client):
-    miss_conf={'anno':True,'mese':True,'settimana':True} #lista dei file mancanti
-    try: #vedo se ci sono file di configurazione presenti
+def check_config(bucket,root,id_plant,client):
+    miss_conf={'year':True,'month':True,'week':True} #list of missing file
+    try: #look for all the playercard's config files
         conf_list=client.list_objects(Bucket=bucket,Prefix='{}/twitter/card/{}/config/'.format(root,id_plant))['Contents']
-        matches = [x for x in conf_list if x['Key'].split('.')[-1]=='json'] # prendo solo gli oggetti della lista che hanno come chiave un oggetto json
-        if len(matches)>=3: #se sono presenti almeno 3 file json di configurazione si presume che siano anno mese settimana così chiude direttamente l'esecuzione della lambda function, rischioso ma migliora le performance
+        matches = [x for x in conf_list if x['Key'].split('.')[-1]=='json'] # list with only the json file of the s3 dir
+        if len(matches)>=3: #if there are at least  3 json file there will be ,arguably ,year, month, week configuration file, so this cut the exucution of this lambda_function to improve the performance
             return 0
         for conf in conf_list:
             name=conf['Key'].split('/')[-1].split('.')[0]
-            if name=='anno':
-                miss_conf['anno']=False
-            elif name=='mese':
-                miss_conf['mese']=False
-            elif name=='settimana':
-                miss_conf['settimana']=False
+            if name=='year':
+                miss_conf['year']=False
+            elif name=='month':
+                miss_conf['month']=False
+            elif name=='week':
+                miss_conf['week']=False
     except:
-        pass #se non è presente nessun file di config
+        pass #if all the config files are missing
 
-    list_json={} # dict di oggetti che poi verranno esportati come file .json e caricati su s3
+    list_json={} # dict of object that will be exported as .json files and will be uploaded to s3
     for conf_key,val in miss_conf.items():
         if val==True:
             path_json='/tmp/{}.json'.format(conf_key)
@@ -90,12 +94,10 @@ def check_config(bucket,root,id_plant,event_time,client):
 def lambda_handler(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = event['Records'][0]['s3']['object']['key']
-    path_key=key[::-1].split('/',1)[1][::-1] # serve a trovare il path dell'oggetto da s3 si fa lo split sulla stringa girata al contrario in maniera da splittare solo il primo / e quindi separare il path dal nome del file e poi prendo la stringa girata del path e la rigiro nuovamente
-    date_name,format=key.split('/')[-1].split('.') #prende il nome del file e ne ricava il nome(che dovrebbe essere la data) e il formato
+    path_key=key[::-1].split('/',1)[1][::-1] # is used to find the path of the object from s3 split on the string turned in reverse so as to split only the first / and then separate the path from the file name and then take the turned string of the path and turn it again
+    date_name,format=key.split('/')[-1].split('.') #takes the file name and gets the name of the file (which should be the date) and the format
     file_tmp="/tmp/photo"
     id_plant=key.split('/')[-2]
     root=key.split('/')[0]
-    date_time=event['Records'][0]['eventTime'] #prendo il tempo dell'evento
-    date_time=datetime.datetime.strptime(date_time.split('.')[0],'%Y-%m-%dT%H:%M:%S')  # creo oggetto datetime , il punto serve perchè la data è nel formato 2018-11-08T00:00:00.000Z
     check_name(date_name,format,bucket,key,file_tmp,path_key,s3)
-    check_config(bucket,root,id_plant,date_time,s3)
+    check_config(bucket,root,id_plant,s3)

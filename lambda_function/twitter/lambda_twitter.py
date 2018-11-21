@@ -1,48 +1,59 @@
 from twython import Twython
 import boto3
-import credenziali
+import credentials
+import sentry_sdk
+from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
+# Automatically report all uncaught exceptions
+sentry_sdk.init(
+    dsn="url_sentry",
+    integrations=[AwsLambdaIntegration()]
+)
 
-def pubblica_video(percorso,messaggio,luogo=None):
-    twitter = Twython(credenziali.consumer_key,credenziali.consumer_secret,credenziali.access_token,credenziali.access_token_secret)
-    video = open(percorso, 'rb')
+# publish a tweet with a message, a place ad a video integrated, pay attention to twitter size limit for videos
+def publish_video(path_video,message,place=None):
+    twitter = Twython(credentials.consumer_key,credentials.consumer_secret,credentials.access_token,credentials.access_token_secret)
+    video = open(path_video, 'rb')
     response = twitter.upload_video(media=video, media_type='video/mp4')
-    if luogo==None:
-        twitter.update_status(status=messaggio, media_ids=[response['media_id']])
+    if place==None:
+        twitter.update_status(status=message, media_ids=[response['media_id']])
     else:
-        twitter.update_status(status=messaggio, media_ids=[response['media_id']],place_id=luogo)
+        twitter.update_status(status=message, media_ids=[response['media_id']],place_id=place)
+    close(video)
 
-def pubblica_immagine(percorso,messaggio,luogo=None):
-    twitter = Twython(credenziali.consumer_key,credenziali.consumer_secret,credenziali.access_token,credenziali.access_token_secret)
-    photo = open(percorso, 'rb')
+# publish a tweet with a message, a place ad a photo integrated, pay attention to twitter size limit for photos
+def publish_image(path_image,message,place=None):
+    twitter = Twython(credentials.consumer_key,credentials.consumer_secret,credentials.access_token,credentials.access_token_secret)
+    photo = open(path_image, 'rb')
     response = twitter.upload_media(media=photo)
-    if luogo==None:
-        twitter.update_status(status=messaggio, media_ids=[response['media_id']])
+    if place==None:
+        twitter.update_status(status=message, media_ids=[response['media_id']])
     else:
-        twitter.update_status(status=messaggio, media_ids=[response['media_id']],place_id=luogo)
+        twitter.update_status(status=message, media_ids=[response['media_id']],place_id=place)
+    close(photo)
 
-
-def pubblica_stato(messaggio,luogo):
-    twitter = Twython(credenziali.consumer_key,credenziali.consumer_secret,credenziali.access_token,credenziali.access_token_secret)
-    if luogo==None:
-        twitter.update_status(status=messaggio)
+# publish a tweet with a text message and place, pay attention to the limit of number of characters
+def publish_status(message,place=None):
+    twitter = Twython(credentials.consumer_key,credentials.consumer_secret,credentials.access_token,credentials.access_token_secret)
+    if place==None:
+        twitter.update_status(status=message)
     else:
-        twitter.update_status(status=messaggio,place_id=luogo)
+        twitter.update_status(status=message,place_id=place)
 
-def cerca_luogo(nome,granularity='city',max_risultati=3): # da migliorare facendo una cernita dei risultati
-    twitter = Twython(credenziali.consumer_key,credenziali.consumer_secret,credenziali.access_token,credenziali.access_token_secret)
-    search_param={'query':nome,'granularity':granularity,'max_results':max_risultati}
-    luoghi = twitter.search_geo(**search_param)
-    # luoghi è un dict
-    return luoghi['result']['places'][0]['id']
+# return a dict of id_places necessary for the geolocalization of the tweet, starting from a city name
+def find_place(city_name,granularity='city',max_results=3): # da migliorare facendo una cernita dei risultati
+    twitter = Twython(credentials.consumer_key,credentials.consumer_secret,credentials.access_token,credentials.access_token_secret)
+    search_param={'query':city_name,'granularity':granularity,'max_results':max_results}
+    found_places = twitter.search_geo(**search_param)
+    # found_places is a dict
+    return found_places['result']['places'][0]['id']
 
 def handler(event, context):
     s3_client = boto3.client('s3')
     for record in event['Records']:
-        nome_bucket = record['s3']['bucket']['name']
+        bucket = record['s3']['bucket']['name']
         key = record['s3']['object']['key']
-    url_card="https://s3.amazonaws.com/{0}/{1}".format(nome_bucket,key)
-    #cerca_luogo('Ancona','city',1)
-    pubblica_stato(
+    url_card="https://s3.amazonaws.com/{0}/{1}".format(bucket,key)
+    publish_status(
                     url_card,
-                    cerca_luogo('Ancona','city',1)
+                    find_place('Ancona','city',1)
                     )

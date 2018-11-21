@@ -1,3 +1,3 @@
-#fa uno sleep o un wait per 5 minuti, dopodichè effettua uno shutdown -h now in modo da fare un halt, di conseguenza non dovrebbero più esserci problemi che impedivano alla raspberry di spegnersi
+#sleeps for 5 minutes, then shutdown -h now to make a halt, so there should be no more problems that prevented the raspberry from shutting down.
 sleep 5m
 sudo shutdown -h now

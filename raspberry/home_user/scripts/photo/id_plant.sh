@@ -1,12 +1,12 @@
-#script che deve recuperare in qualche modo la foto della pianta
-# strutturato in modo da prendere come parametro il path della dir contente tutte le dir delle foto delle piante
+#script that must somehow retrieve the photo of the plant
+# structured so as to take as parameter the path of the dir containing all the dir of the photos of the plants
 PATHPHOTOS=$1
 NAME_SCRIPT=$(basename $0)
-# per capire il nome della pianta parto dal nome dello script nella forma id_pianta.sh usando basename
-IFS='.' # IFS  è il carattere separatore, che poi verrà utilizzato dal comando read per creare un array di elementi
+# To understand the plant name start from the script name in the form id_plant.sh using basename
+IFS='.' # IFS is the separator character, which will then be used by the read command to create an array of elements
 read -ra PLANT <<< $NAME_SCRIPT
 DATE=$(date +"%Y%m%d%H%M")
 PATH_OUT=$PATHPHOTOS/${PLANT[0]}/$DATE
-#definito tutto l'output si passa alla parte dello script che recupera effettivamente la foto e la va a piazzare in PATH_OUT
+#defined all the output is passed to the part of the script that actually retrieves the photo and goes to place it in PATH_OUT
 raspistill -t 1  -o $PATH_OUT.jpg
-# deve essere uniforme per tutti questi script l'output, cioè devono caricare la foto nella cartella foto/id_plant/ con naming YYYYMMDDHHMM.jpg
+# The output must be uniform for all these scripts, i.e. they must upload the photo in the folder photos/id_plant/ with naming YYYYMMDDHHMM.jpg

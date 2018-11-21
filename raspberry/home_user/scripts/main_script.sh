@@ -1,21 +1,21 @@
-# va eseguito nel file rc.local come utente pi e con la sintassi main_script.sh /home/pi/scripts  /home/pi/photos ortobotanico demo/foto
+# must be executed in rc.local as user pi with syntax main_script.sh /home/pi/scripts  /home/pi/photos ortobotanico demo/foto
 path_script=$1
 path_photos=$2
 bucket=$3
 prefix_photos=$4
+# key of the scheduler on s3
 key_scheduler='demo/sched_wittypi'
-
+# i reuse some functions of the wittypi utilities
 . "/home/pi/wittyPi/utilities.sh"
 
 cd $path_script
-#deve lanciare tutti gli script presenti nella dir script_photo dove per ogni pianta c'è uno script che si chiama come la pianta
+#must run all the scripts in the dir scripts/photo where for each plant there is a script called as the plant
 ./retrieve_photos.sh $path_script $path_photos
-#controllo se c'è internet
+#check internet connection
 if $(has_internet); then
-  echo 'connesso'
+  echo 'connected'
   ./sync_scheduler.sh $bucket $key_scheduler.wpi $path_script
-#poi lancia sync_photos.sh
   ./sync_photos.sh $path_photos $bucket/$prefix_photos
 fi
-#poi lancia kill_rasp.sh però in background
+#execute kill_rasp.sh in background
 nohup ./kill_rasp.sh > /dev/null 2>&1 &
