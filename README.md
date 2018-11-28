@@ -1,6 +1,6 @@
 # SmartGarden
 Questa repository è stata creata per il tirocinio di Claudio Spada e Roberto Broccoletti con il relatore A. Mancini dell'UNIVPM.
-Il progetto consiste nella creazione di un sistema in grado di scattare foto giornaliere alle piante dell'orto botanico smart, elaborarle e successivamente pubblicare i risultati sui social come Facebook e Twitter
+Il progetto consiste nella creazione di un sistema in grado di scattare foto giornaliere alle piante dell'orto botanico smart, elaborarle e successivamente pubblicare i risultati sui social come Facebook e Twitter.
 
 ## Step 1: test delle API dei social network
 Le API necessarie, per creare post e pubblicare foto con geo tagging sono state testate con l'ausilio di POSTMAN
