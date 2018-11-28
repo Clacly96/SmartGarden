@@ -1,0 +1,6 @@
+{
+    "id_pianta":"plant_id",
+    "titolo":"Player Card",
+    "descrizione":"Descrizione della Card",
+    "url_immagine":"https://s3.amazonaws.com/key_to_thumbnail"
+}

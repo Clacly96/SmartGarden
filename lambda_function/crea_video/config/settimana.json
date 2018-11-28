@@ -1,0 +1,13 @@
+{
+    "data_inizio":"AAAA-MM-01",
+    "data_fine":"AAAA-MM-31",
+    "fps":"1",
+    "grayscale":"0",
+    "frame_width":"1280",
+    "frame_height":"720",
+    "info_video":{
+        "nome":"settimana",
+        "formato":"H264",
+        "estensione":"mp4"
+    }
+}
