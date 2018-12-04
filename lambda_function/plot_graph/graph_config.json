@@ -1,0 +1,15 @@
+{
+    "color":"red",
+    "marker":"o",
+    "linestyle":"solid",
+    "linewidth":2, 
+    "markersize":5,
+    "scalex":"linear",
+    "scaley":"linear",
+    "xlabel":"Time", 
+    "ylabel":{
+        "temperature":"Temperature [°C]",
+        "umidity":"Umidity [%]",
+        "dendrometer":"Dendrometer value [mm]"
+    }
+}
