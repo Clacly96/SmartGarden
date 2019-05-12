@@ -10,6 +10,8 @@
     "ylabel":{
         "temperature":"Temperature [°C]",
         "umidity":"Umidity [%]",
-        "dendrometer":"Dendrometer value [mm]"
-    }
+        "dendrometer":"Dendrometer value [mm]",
+        "battery":"Battery level [V]"
+    },
+    "hourStep":3
 }
