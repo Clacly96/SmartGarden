@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Menu</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="icon" href="favicon.ico" />
+
+        <script src="js/vendor/jquery-3.1.0.js"></script>
+        <script src="js/vendor/jquery.serializeToJSON.js"></script>
+        <script src="js/vendor/pagination.min.js"></script>
+        <script src="js/vendor/aws-cognito-sdk.min.js"></script>
+        <script src="js/vendor/amazon-cognito-identity.min.js"></script>
+        <script src="js/vendor/bootstrap.js"></script>
+        <script src="js/config.js"></script>
+        <script src="js/cognito-auth.js"></script>
+        <script src="js/menu.js"></script>
+        <link rel="stylesheet" href="css/bootstrap.css">
+        <link rel="stylesheet" href="css/pagination.css">
+        <style>
+            #sx-section{
+                width: 25%;
+                float: left;
+            }
+            #dx-section{
+                padding: 0 5em 1em 2em;
+                width: 75%;
+                float: left;
+            }
+        </style>        
+    </head>
+    <body>
+        <div id="loadingSpinner" style="position:fixed;width: 100%; height: 100%; display: none;background-color: #cccccc;opacity: 0.5; z-index: 10;" >
+            <div class="d-flex justify-content-center" style="position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" >
+                <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        </div>
+        <h1>Configuration page</h1>
+        
+        <div id="sx-section">
+            <div id="menu">
+                <ul class="nav flex-column">
+                    <li class="nav-item" title="plant"><a class="nav-link" href="#">Plant</a></li>
+                    <li class="nav-item" title="configFile"><a class="nav-link" href="#">Configuration File</a></li>
+                    <li class="nav-item" title="template"><a class="nav-link" href="#">Template File</a></li>
+                </ul>
+            </div>
+            <h2 id="table-type"></h2>
+            <div id="list-content"></div>
+            <div id="list-pagination"></div>
+        </div>
+        <div id="dx-section">        
+            <div id="form-container"></div>
+        </div>     
+    </body>
+</html>
