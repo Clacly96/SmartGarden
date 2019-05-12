@@ -18,6 +18,7 @@ def build_summary(summary_info,summary_template_S3):
     return summary
 
 def get_plant_info(plant_uuid):
+    #get plant info from dynamodb
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('plant')
     resp=table.get_item(
@@ -50,13 +51,14 @@ def build_tweet(plant_info,template_local_path):
 def publish_tweet(tweet,local_chart_path=None):
     #get credentials
     twitter = Twython(credentials.consumer_key,credentials.consumer_secret,credentials.access_token,credentials.access_token_secret)
-    #publish tweet    
+    #publish tweet; publish chart only if path is given    
     if local_chart_path==None:
         if 'site' in tweet:
             twitter.update_status(status=tweet['text'], lat=tweet['site'][1],long=tweet['site'][0])
         else:
             twitter.update_status(status=tweet['text'])
     else:
+        #upload chart, get media id and publish tweet with media
         chart = open(local_chart_path, 'rb')
         response = twitter.upload_media(media=chart)
         twitter.update_status(status=tweet['text'], media_ids=[response['media_id']])
@@ -80,14 +82,14 @@ def status_tweet(bucket,root,s3,plant_uuid,event_type):
 def chart_tweet(bucket,object_key,s3,summary_path_S3,summary_template_S3):
     object_name=object_key.split('/')[-1]
     
-    #period of chart (weer or month)
+    #period of chart (week or month or day)
     chart_period=object_key.split('/')[-2]
     
     #type of chart (umidity, ...)
     chart_type=object_name.split('.')[0].split('_')[1]
     
     # key of the summary card
-    summary_key=summary_path_S3+object_name.split('.')[0]+'.html'
+    summary_key=summary_path_S3+chart_period+'/'+object_name.split('.')[0]+'.html'
     
     #test if card exists
     try:
