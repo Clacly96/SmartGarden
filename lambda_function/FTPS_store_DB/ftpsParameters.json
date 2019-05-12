@@ -1,0 +1,8 @@
+{
+    "host":"",
+    "port":21,
+    "timeout":40,
+    "username":"",
+    "password":"",
+    "deviceUUID":""
+}
