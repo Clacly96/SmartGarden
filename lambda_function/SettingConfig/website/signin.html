@@ -6,28 +6,33 @@
         <title>SignIn</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
+        <link rel="icon" href="favicon.ico" />
 
-        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-
-        <link rel="stylesheet" href="css/font.css">
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/index.css">
-        <link rel="stylesheet" href="css/message.css">
-    </head>
-    <body>
-        <section class="form-wrap">
-            <h1>Sign In</h1>
-            <form id="signinForm">
-              <input type="email" id="emailInputSignin" placeholder="Email" required>
-              <input type="password" id="passwordInputSignin" placeholder="Password" pattern=".*" required>
-
-              <input type="submit" value="Sign in">
-            </form>
-        </section>
         <script src="js/vendor/jquery-3.1.0.js"></script>
         <script src="js/vendor/aws-cognito-sdk.min.js"></script>
         <script src="js/vendor/amazon-cognito-identity.min.js"></script>
         <script src="js/config.js"></script>
         <script src="js/cognito-auth.js"></script>
+
+        <script src="js/vendor/bootstrap.js"></script>
+        <link rel="stylesheet" href="css/bootstrap.css">        
+    </head>
+    <body>
+        <section class="form-wrap">
+            <h1 style="text-align:center">Sign In</h1>
+            <div style="width:40%; margin:0 auto">
+                <form id="signinForm">
+                    <div class="form-group"><label for="emailInputSignin">Email</label>
+                        <input class="form-control" type="email" id="emailInputSignin" placeholder="Email" required>
+                    </div>
+                    <div class="form-group"><label for="passwordInputSignin">Password</label>
+                        <input class="form-control" type="password" id="passwordInputSignin" placeholder="Password" pattern=".*" required>
+                    </div>
+
+                    <input class="btn btn-primary mb-2" style="margin:1em 0 0 0;" type="submit" value="Submit">
+                </form>
+            </div>
+        </section>
+        
     </body>
 </html>

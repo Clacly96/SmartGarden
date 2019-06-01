@@ -1,0 +1,26 @@
+{
+    "labelPadding":20,
+    "labelValuePadding":10,
+    "labelSize":15,
+    "labelValueSize":15,
+    "titleSize":17,
+    "figureWidth":17,
+    "figureHeight":12,
+    "figureDPI":80,
+    "color": "red",
+    "color2":"blue", 
+    "marker": "o", 
+    "linestyle": "solid", 
+    "linewidth": "2", 
+    "markersize": "5", 
+    "scalex": "linear", 
+    "scaley": "linear", 
+    "xlabel": "Time", 
+    "ylabel": {
+        "temperature": "Temperature [\u00b0C]", 
+        "umidity": "Umidity [%]", 
+        "dendrometer": "Dendrometer value [mm]", 
+        "battery": "Battery level [V]"}, 
+    "hourStep": 1,
+    "plotTwoDendrometer":1
+}

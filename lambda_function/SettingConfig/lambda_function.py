@@ -38,6 +38,19 @@ def put_configTemplateFile(bucket,objectType,data):
     else:
         return -1
 
+def get_plant_mockup(bucket,fileName):
+    s3 = boto3.client('s3')
+    resp=s3.get_object(
+            Bucket=bucket,
+            Key=fileName,
+        )
+    data=json.loads(resp['Body'].read())
+    data['S3FileKey']=fileName
+    try:
+        return {"data":data}
+    except:
+        return resp
+
 def get_plant_info(objName):
     #get plant info from dynamodb
     dynamodb = boto3.resource('dynamodb')
@@ -100,6 +113,7 @@ def lambda_handler(event, context):
     bucket = 'ortobotanico'     #set bucket
     configFolder=root+'config/'   #set config folder
     templateFolder=root+'template/'     #set template folder
+    plantMockup=root+'mockupPlant.json'
 
     requestType=event['reqType'] #e.g. read or write
     objectType=event['objType'] # plant | device | plant_device | configFile | template
@@ -119,6 +133,10 @@ def lambda_handler(event, context):
             resp=put_configTemplateFile(bucket,objectType,event['data']) #event['objName'] must be name of a S3 config file's path e.g. root/config/graph_config.json
         elif objectType == 'template':
             resp=put_configTemplateFile(bucket,objectType,event['data']) #event['objName'] must be name of a S3 template's path e.g. root/template/template_begin.txt
+    
+    elif requestType == 'insert':
+        if objectType == 'plant':            
+            resp=get_plant_mockup(bucket,plantMockup) #event['objName'] must be a json with all field of a plant item
     print(resp)
     return{
         'body': resp
