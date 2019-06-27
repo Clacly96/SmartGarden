@@ -80,12 +80,12 @@ def build_tweet(plant_info,template_local_path):
     template=env.get_template(template_local_path.split('/')[-1])
     tweet={}
     tweet['text']=template.render(
-        name=plant_info['name'],
-        species=plant_info['species'],
-        variety=plant_info['variety'],
+        name=plant_info['name'].title().replace(' ',''),
+        species=plant_info['species'].title().replace(' ',''),
+        variety=plant_info['variety'].title().replace(' ',''),
         period_begin=plant_info['period_begin'],
         period_end=plant_info['period_end'],
-        site=plant_info['site']['properties']['name']
+        site=plant_info['site']['properties']['name'].title().replace(' ','')
     )
     tweet['site']=plant_info['site']['geometry']['coordinates']
     return tweet

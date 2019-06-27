@@ -148,17 +148,25 @@ var WebAppMethods = window.WebAppMethods || {};
                     return false;
                 }
             });
+            if (currentRequestObjName.includes('chart_config.json')){
+                $("#Form").append('<input id="previewButton" class="btn btn-primary mb-2" style="margin:1em 0 0 0;" type="button" value="Preview">');
+                $("#previewButton").click(requestChartPreview);
+            }
 
             //add leaflet map
             if($('#map')){
                 map = new L.Map('map');
                 var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
                 var osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
-                var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 19, attribution: osmAttrib});		
+                var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 22, attribution: osmAttrib});		
 
                 // start the map in initial plant site
-                long=$('input[name="site.geometry.coordinates.0"]').val();
-                lat=$('input[name="site.geometry.coordinates.1"]').val();
+                var long=$('input[name="site.geometry.coordinates.0"]').val();
+                var lat=$('input[name="site.geometry.coordinates.1"]').val();
+                if (long==0 && lat==0){
+                    lat=43.5821;
+                    long=13.4367;
+                }
                 var latlong=new L.LatLng(lat, long)
                 map.setView(latlong,14);
                 var marker=L.marker(latlong).addTo(map);
@@ -190,7 +198,7 @@ var WebAppMethods = window.WebAppMethods || {};
     }
 
     
-
+    //function for get property from json with dot notation
     function getPropFromJson(path,obj){
         return path.split('.').reduce(function(prev,curr){
             try{
@@ -262,7 +270,13 @@ var WebAppMethods = window.WebAppMethods || {};
                 {
                     reqType: 'write',
                     objType: currentRequestObjType,
-                    data: $("#Form").serializeToJSON({associativeArrays: false})
+                    data: $("#Form").serializeToJSON({associativeArrays: false,
+                                            parseFloat: {
+                                                        condition: function(i) {
+                                                            var v = i.val().split(",").join("");
+                                                            return Number.isInteger(Number(v)); // In this case, conversion will always occur when possible
+                                                        }
+                                                    }})
                 }
             ),
             contentType: 'application/json',
@@ -305,6 +319,45 @@ var WebAppMethods = window.WebAppMethods || {};
             ),
             contentType: 'application/json',
             success: writeInfo,
+            error: function ajaxError(jqXHR, textStatus, errorThrown) {
+                console.error('Error requesting ride: ', textStatus, ', Details: ', errorThrown);
+                console.error('Response: ', jqXHR.responseText);
+                alert('An error occured when requesting:\n' + jqXHR.responseText);
+            }
+        });
+    }
+
+    function requestChartPreview(event) {
+        event.preventDefault();
+        currentRequestType='chartPreview';
+        $("#loadingSpinner").show();
+        $.ajax({
+            method: 'POST',
+            url: _config.api.invokeUrl,
+            headers: {
+                Authorization: userToken
+            },
+            data: JSON.stringify(
+                {
+                    reqType: 'chartPreview',
+                    objType:'chart',
+                    chartConfig: $("#Form").serializeToJSON({associativeArrays: false,
+                        parseFloat: {
+                                    condition: function(i) {
+                                        var v = i.val().split(",").join("");
+                                        return Number.isInteger(Number(v)); // In this case, conversion will always occur when possible
+                                    }
+                                }})
+                }
+            ),
+            contentType: 'application/json',
+            success: function(result){
+                $("#loadingSpinner").hide();
+                if (!$("#chart_preview_div").length){
+                    $("#form-container").append('<div id="chart_preview_div"></div>')
+                }
+                $("#chart_preview_div").html('<img id="chart_preview" style="max-width: 100%;" src="'+result['body']+'" alt="Chart preview">')
+            },
             error: function ajaxError(jqXHR, textStatus, errorThrown) {
                 console.error('Error requesting ride: ', textStatus, ', Details: ', errorThrown);
                 console.error('Response: ', jqXHR.responseText);

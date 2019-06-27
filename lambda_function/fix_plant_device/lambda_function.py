@@ -1,4 +1,4 @@
-import boto3,json
+import boto3
 from dynamodb_json import json_util #converts dynamodb json in standard json
 
 def delete_old_item(dynamodb,ev_data):
@@ -24,7 +24,7 @@ def plant_update(dynamodb,ev_data):
     if 'Item' in resp:
         table.update_item(
             ExpressionAttributeNames={'#PU': 'plantUUID'},
-            ExpressionAttributeValues={':u': {'S': ev_data['NewImage']['plantUUID']}},
+            ExpressionAttributeValues={':u': ev_data['NewImage']['plantUUID']},
             Key={'deviceUUID':ev_data['NewImage']['device']['deviceUUID'],
             'dendrometerCh':int(ev_data['NewImage']['device']['dendrometerCh'])
             },
@@ -48,9 +48,15 @@ def lambda_handler(event, context):
     for ev in event['Records']:
         ev_type=ev['eventName']
         ev_data=json_util.loads(ev['dynamodb'])
-
+        
         if ev_type=='MODIFY' or ev_type=='INSERT':
+            if int(ev_data['NewImage']['device']['dendrometerCh'])==-1:
+                print(ev_data['NewImage']['device']['dendrometerCh'])
+                return 0
             plant_update(dynamodb,ev_data)
         elif ev_type=='REMOVE':
+            if int(ev_data['OldImage']['device']['dendrometerCh'])==-1:
+                print(ev_data['OldImage']['device']['dendrometerCh'])
+                return 0
             delete_old_item(dynamodb,ev_data)
 

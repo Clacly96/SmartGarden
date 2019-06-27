@@ -1,4 +1,57 @@
-import boto3,json
+import boto3,json,random
+import matplotlib.pyplot as plt
+
+def create_preview(chart_path_S3,bucket_name,chart_config):
+    fig_path='/tmp/'
+
+    variableA=[i for i in range(1,31)]
+    variableB=[random.randint(10, 100) for i in range(1,31)]
+    random.seed(10)
+    variableC=[random.randint(10, 100) for i in range(1,31)]
+    #create chart with matplotlib
+    fig, ax1 = plt.subplots(figsize=(chart_config['figureWidth'], chart_config['figureHeight']),dpi=chart_config['figureDPI'])
+    ax1.grid(which='major', axis='x', linestyle='--')
+    ax1.set_title(label='Chart\'s preview',fontsize=chart_config['titleSize'],pad=chart_config['labelPadding'])
+    ax1.plot(variableA, 
+            variableB,
+            color=chart_config['color'],
+            marker=chart_config['marker'],
+            linestyle=chart_config['linestyle'],
+            linewidth=chart_config['linewidth'], 
+            markersize=chart_config['markersize'],
+            scalex=chart_config['scalex'],
+            scaley=chart_config['scaley'],
+        )
+    ax1.set_ylabel('Variable label A', color=chart_config['color'],fontsize=chart_config['labelSize'],labelpad=chart_config['labelPadding'])
+    ax1.set_xlabel(chart_config['xlabel'],fontsize=chart_config['labelSize'],labelpad=chart_config['labelPadding'])
+    ax1.tick_params(axis='x',labelsize=chart_config['labelValueSize'],pad=chart_config['labelValuePadding'])  
+    ax1.tick_params(axis='y', labelcolor=chart_config['color'],labelsize=chart_config['labelValueSize'],pad=chart_config['labelValuePadding'])        
+    plt.xticks(rotation='vertical') #rotate x label
+
+    ax2 = ax1.twinx()   #generate ax2 with same x axe
+    ax2.plot(variableA, 
+            variableC,
+            color=chart_config['color2'],
+            marker=chart_config['marker'],
+            linestyle=chart_config['linestyle'],
+            linewidth=chart_config['linewidth'], 
+            markersize=chart_config['markersize'],
+        )
+    ax2.set_ylabel('Variable label B', color=chart_config['color2'], fontsize=chart_config['labelSize'],labelpad=chart_config['labelPadding'])
+    ax2.tick_params(axis='y', labelcolor=chart_config['color2'], labelsize=chart_config['labelValueSize'],pad=chart_config['labelValuePadding']) 
+    
+    plt.savefig(''.join([fig_path,'chartPreview.png']))
+
+    s3_client=boto3.client('s3')
+    with open(''.join([fig_path,'chartPreview.png']), 'rb') as data:
+        s3_client.upload_fileobj(data, 
+                                bucket_name,
+                                chart_path_S3+'chartPreview.png',
+                                ExtraArgs={
+                                    "ACL": "public-read",
+                                    })
+    
+    return 'https://s3.amazonaws.com/{0}/{1}'.format(bucket_name,chart_path_S3+'chartPreview.png')
 
 def put_plant_info(data):
     dynamodb = boto3.resource('dynamodb')
@@ -107,15 +160,15 @@ def get_configTemplateFile(objectType,bucket,folder,fileName):
         except:
             return resp
 
-
 def lambda_handler(event, context):    
-    root='test_2/'   #set root folder
+    root = 'test_2/'   #set root folder
     bucket = 'ortobotanico'     #set bucket
-    configFolder=root+'config/'   #set config folder
-    templateFolder=root+'template/'     #set template folder
-    plantMockup=root+'mockupPlant.json'
+    configFolder = root + 'config/'   #set config folder
+    templateFolder = root + 'template/'     #set template folder
+    plantMockup = root + 'mockupPlant.json' #set mockup for plant form
+    chartPreviewPath = root + 'chart/preview/'  #set folder for chart preview
 
-    requestType=event['reqType'] #e.g. read or write
+    requestType=event['reqType'] #e.g. read, write, chartPreview, insert
     objectType=event['objType'] # plant | device | plant_device | configFile | template
     #Note: if objName==list, will be send a list of all table's records
     if requestType == 'read':
@@ -137,6 +190,9 @@ def lambda_handler(event, context):
     elif requestType == 'insert':
         if objectType == 'plant':            
             resp=get_plant_mockup(bucket,plantMockup) #event['objName'] must be a json with all field of a plant item
+    elif requestType == 'chartPreview':
+        chart_config = event['chartConfig']
+        resp=create_preview(chartPreviewPath,bucket,chart_config)
     print(resp)
     return{
         'body': resp

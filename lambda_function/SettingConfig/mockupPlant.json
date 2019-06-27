@@ -1,0 +1,25 @@
+{
+    "plantUUID": "",    
+    "name": "",
+    "species": "",
+    "variety": "",
+    "period_begin": "",
+    "period_end": "",
+    "device": {
+    "dendrometerCh": "-1",
+    "deviceUUID": ""
+    },
+    "site": {
+      "geometry": {
+        "coordinates": {
+          "0": "",
+          "1": ""
+        },
+        "type": "Point"
+      },
+      "properties": {
+        "name": ""
+      },
+      "type": "Feature"
+    }    
+  }

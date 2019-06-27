@@ -54,8 +54,8 @@ WebAppMethods.disabledList={
           },
           "device": {
           "dendrometerCh": {
-            "pattern":"[0-9]",
-            "title":"Only number"
+            "pattern":"(-1)|[0-9]",
+            "title":"Only number. If plant doesn't have dendrometer, insert -1"
           },
           "deviceUUID": {
               "pattern":"[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}",
